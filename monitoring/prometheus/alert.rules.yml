@@ -1,0 +1,22 @@
+﻿groups:
+  - name: sentinelops-alerts
+    rules:
+      - alert: NginxServiceDown
+        expr: probe_success{job="blackbox-nginx"} == 0
+        for: 10s
+        labels:
+          severity: critical
+          service: nginx
+        annotations:
+          summary: "NGINX service is unreachable"
+          description: "The NGINX HTTP probe has failed for more than 10 seconds."
+
+      - alert: SentinelOpsApiDown
+        expr: up{job="sentinelops-api"} == 0
+        for: 15s
+        labels:
+          severity: critical
+          service: sentinelops-api
+        annotations:
+          summary: "SentinelOps API is unreachable"
+          description: "Prometheus cannot scrape the SentinelOps API endpoint."

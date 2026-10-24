@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SentinelOps Final Report</title>
+<style>
+@page { size: A4; margin: 17mm 20mm 18mm; }
+* { box-sizing: border-box; }
+body { font-family: Arial, Helvetica, sans-serif; color: #202b36; font-size: 10pt; line-height: 1.45; }
+h1 { text-align: center; color: #14263d; font-size: 25pt; margin: 0 0 4px; letter-spacing: 2px; }
+.subtitle { text-align: center; color: #526273; font-size: 10pt; margin-bottom: 24px; }
+h2 { color: #2563a6; font-size: 13pt; border-bottom: 1px solid #d6dee8; padding-bottom: 4px; margin: 16px 0 7px; }
+p { margin: 5px 0 8px; text-align: justify; }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 9pt; }
+th { background: #14263d; color: white; text-align: left; }
+th, td { padding: 7px; border: 1px solid #d6dee8; vertical-align: top; }
+tr:nth-child(even) td { background: #f5f7fa; }
+li { margin-bottom: 7px; }
+.note { background: #eef4fa; border-left: 3px solid #2563a6; padding: 9px; margin-top: 12px; }
+.page2 { break-before: page; page-break-before: always; }
+.footer { border-top: 1px solid #d6dee8; margin-top: 20px; padding-top: 5px; color: #526273; font-size: 8pt; }
+</style>
+</head>
+<body>
+<h1>SENTINELOPS</h1>
+<div class="subtitle">Self-Healing Infrastructure &amp; Intelligent Incident Recovery Platform</div>
+
+<h2>1. Introduction</h2>
+<p>Service availability is a core operational concern: a failed service can interrupt users and require prompt intervention. SentinelOps is a DevOps proof of concept that connects monitoring, alert routing, and automated recovery. It uses an NGINX web service as the monitored target and combines Prometheus, Alertmanager, Blackbox Exporter, a Flask-based recovery controller, and Ansible in a Docker Compose environment.</p>
+
+<h2>2. Abstract</h2>
+<p>SentinelOps demonstrates a service-availability monitoring-to-recovery workflow. Blackbox Exporter probes the NGINX HTTP endpoint and exposes probe metrics to Prometheus. Prometheus evaluates configured alert rules; when a service-down condition persists for the configured duration, it fires an alert. Alertmanager forwards matching alerts to the recovery controller, which can invoke the Ansible recovery playbook and record recovery activity. A Flask dashboard presents service status, alert information, and recovery events. Verification during implementation showed HTTP 200 responses from both the SentinelOps API health endpoint and the NGINX target.</p>
+
+<h2>3. Tools Used</h2>
+<table>
+<tr><th>Tool / Component</th><th>Role in the project</th></tr>
+<tr><td>Docker Compose</td><td>Runs the application, monitored target, monitoring components, and recovery services as containers.</td></tr>
+<tr><td>Prometheus</td><td>Collects metrics and evaluates service-availability alert rules.</td></tr>
+<tr><td>Blackbox Exporter</td><td>Probes the NGINX HTTP endpoint and reports probe success or failure.</td></tr>
+<tr><td>Alertmanager</td><td>Routes firing alerts to the recovery controller webhook.</td></tr>
+<tr><td>Python / Flask</td><td>Provides the dashboard/API and recovery-controller endpoints.</td></tr>
+<tr><td>Ansible</td><td>Executes the configured NGINX recovery playbook.</td></tr>
+<tr><td>NGINX</td><td>Acts as the sample service monitored by the platform.</td></tr>
+</table>
+
+<h2>4. Steps Involved</h2>
+<ol>
+<li><b>Containerized deployment:</b> Organized the dashboard/API, NGINX target, Prometheus, Alertmanager, Blackbox Exporter, and recovery controller through Docker Compose.</li>
+<li><b>Monitoring configuration:</b> Configured Blackbox Exporter to probe NGINX and Prometheus to scrape probe results.</li>
+<li><b>Alert definition:</b> Added an NGINX service-down rule based on probe success and an API-down rule based on target availability.</li>
+</ol>
+<div class="footer">SentinelOps | Project Report — Page 1</div>
+
+<div class="page2">
+<h1 style="font-size:20pt; margin-top:5px;">IMPLEMENTATION &amp; VALIDATION</h1>
+<div class="subtitle">SentinelOps | Project Report — Page 2</div>
+
+<h2>4. Steps Involved (continued)</h2>
+<ol start="4">
+<li><b>Alert routing:</b> Configured Alertmanager to forward matching alerts to the recovery controller using its internal webhook endpoint.</li>
+<li><b>Recovery automation:</b> Connected the recovery controller to the Ansible playbook. Recorded recovery output included a successful Ansible recap with <i>failed=0</i>; the NGINX endpoint was subsequently verified as responding.</li>
+<li><b>Operational visibility:</b> Exposed dashboard information for service health, alerts, and recovery events.</li>
+<li><b>Verification and evidence:</b> Checked the API health endpoint and NGINX target; both returned HTTP 200. Six screenshots document the dashboard, Prometheus rules, Alertmanager configuration, recovery events, recovery logs, and NGINX verification.</li>
+</ol>
+
+<h2>Validation Summary</h2>
+<table>
+<tr><th>Check</th><th>Observed result</th></tr>
+<tr><td>SentinelOps API health endpoint</td><td>HTTP 200; response reported the API as healthy.</td></tr>
+<tr><td>NGINX target endpoint</td><td>HTTP 200; default NGINX page returned.</td></tr>
+<tr><td>Recovery evidence</td><td>Recovery log showed an Ansible recap with failed=0; the endpoint was later verified responding.</td></tr>
+<tr><td>Evidence screenshots</td><td>Six screenshots are present in the project's evidence directory.</td></tr>
+</table>
+
+<div class="note"><b>Scope and limitations:</b> This version demonstrates service-availability alerts and NGINX recovery. CPU usage alerting above 90% is not implemented. This is a proof of concept; production use would require additional hardening, access controls, and secret management.</div>
+
+<h2>5. Conclusion</h2>
+<p>SentinelOps integrates open-source DevOps tools into a practical monitoring and recovery pipeline: probe a service, detect a failure, route an alert, invoke Ansible recovery, and review operational evidence in a dashboard. The implementation provides a foundation for further work, including resource-based alerts, expanded automated tests, recovery policy controls, and production-grade security.</p>
+<div class="footer">SentinelOps | Self-Healing Infrastructure — Page 2</div>
+</div>
+</body>
+</html>

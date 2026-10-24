@@ -1,0 +1,80 @@
+﻿
+name: sentinelops
+
+services:
+  sentinelops-api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: sentinelops-api
+    ports:
+      - "5001:5000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  sentinelops-target:
+    image: nginx:alpine
+    container_name: sentinelops-target
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: sentinelops-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+    depends_on:
+      - blackbox-exporter
+      - sentinelops-api
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.27.0
+    container_name: sentinelops-blackbox
+    volumes:
+      - ./monitoring/prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    command:
+      - "--config.file=/etc/blackbox_exporter/config.yml"
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: sentinelops-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    restart: unless-stopped
+  recovery-controller:
+    build:
+      context: ./recovery
+      dockerfile: Dockerfile
+    container_name: sentinelops-recovery
+    expose:
+      - "5002"
+    volumes:
+      - ./recovery/playbooks:/app/playbooks:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+volumes:
+  prometheus-data:

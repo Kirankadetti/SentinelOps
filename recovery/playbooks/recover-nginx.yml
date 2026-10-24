@@ -1,0 +1,22 @@
+﻿- name: Recover the SentinelOps monitored NGINX service
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Restart the allowlisted NGINX container
+      community.docker.docker_container:
+        name: sentinelops-target
+        state: started
+        restart: true
+        timeout: 30
+
+    - name: Wait for NGINX to become available
+      ansible.builtin.uri:
+        url: http://sentinelops-target:80/
+        method: GET
+        status_code: 200
+      register: nginx_health
+      retries: 12
+      delay: 5
+      until: nginx_health.status == 200

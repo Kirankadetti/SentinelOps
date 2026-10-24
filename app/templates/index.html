@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1020">
+    <title>SentinelOps | Infrastructure Command Center</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/">
+                <span class="brand-mark">S</span>
+                <span>
+                    <strong>SentinelOps</strong>
+                    <small>INFRASTRUCTURE AI</small>
+                </span>
+            </a>
+
+            <div class="nav-label">WORKSPACE</div>
+            <a class="nav-item active" href="#overview"><span>◈</span> Overview</a>
+            <a class="nav-item" href="#services"><span>▦</span> Services</a>
+            <a class="nav-item" href="#alerts"><span>⌁</span> Alerts & Incidents</a>
+            <a class="nav-item" href="#recovery"><span>⟳</span> Recovery History</a>
+
+            <div class="sidebar-bottom">
+                <div class="system-indicator"><span class="pulse"></span> Monitoring enabled</div>
+                <small>SELF-HEALING PLATFORM</small>
+                <small>SentinelOps · v1.0.0</small>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">OPERATIONS / OVERVIEW</div>
+                    <h1>Command Center</h1>
+                    <p class="muted">Monitor infrastructure health and automated recovery.</p>
+                </div>
+                <div class="top-actions">
+                    <span class="live-label"><span class="pulse"></span> LIVE MONITORING</span>
+                    <button id="refresh-btn" class="refresh-btn">↻ Refresh</button>
+                </div>
+            </header>
+
+            <section class="welcome-panel" id="overview">
+                <div>
+                    <div class="eyebrow light">SELF-HEALING INFRASTRUCTURE</div>
+                    <h2>Your infrastructure.<br><span>Resilient by design.</span></h2>
+                    <p>Detect failures, route alerts, and recover services through automated Ansible playbooks.</p>
+                </div>
+                <div class="hero-symbol" aria-hidden="true">
+                    <div class="orbit orbit-one"></div>
+                    <div class="orbit orbit-two"></div>
+                    <div class="core">S</div>
+                    <span class="orbit-dot dot-one"></span>
+                    <span class="orbit-dot dot-two"></span>
+                    <span class="orbit-dot dot-three"></span>
+                </div>
+            </section>
+
+            <div class="section-heading">
+                <div><h2>System overview</h2><p class="muted">Live infrastructure signals</p></div>
+                <span id="last-updated" class="muted">Waiting for first update…</span>
+            </div>
+
+            <section class="metrics-grid">
+                <article class="metric-card">
+                    <div class="metric-top"><span>Monitored target</span><span class="metric-icon cyan">◎</span></div>
+                    <div class="metric-value" id="target-status">Checking…</div>
+                    <div class="metric-foot"><span class="status-dot" id="target-dot"></span><span id="target-detail">NGINX · HTTP probe</span></div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-top"><span>Application API</span><span class="metric-icon purple">⌘</span></div>
+                    <div class="metric-value" id="api-status">Checking…</div>
+                    <div class="metric-foot"><span class="status-dot" id="api-dot"></span><span id="api-detail">Flask application</span></div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-top"><span>Firing alerts</span><span class="metric-icon orange">⌁</span></div>
+                    <div class="metric-value" id="alert-count">—</div>
+                    <div class="metric-foot">Prometheus alert state</div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-top"><span>Recovery actions</span><span class="metric-icon green">⟳</span></div>
+                    <div class="metric-value" id="recovery-count">—</div>
+                    <div class="metric-foot">Successful recorded recoveries</div>
+                </article>
+            </section>
+
+            <section class="content-grid">
+                <article class="panel" id="services">
+                    <div class="panel-heading">
+                        <div><h2>Infrastructure services</h2><p class="muted">Availability checks</p></div>
+                        <span class="tag">LIVE</span>
+                    </div>
+                    <div class="service-row service-clickable" tabindex="0" role="button" data-service="nginx">
+                        <div class="service-icon">N</div>
+                        <div class="service-info"><strong>NGINX target</strong><small>Blackbox HTTP probe</small></div>
+                        <span id="nginx-badge" class="badge pending">Checking</span>
+                    </div>
+                    <div class="service-row service-clickable" tabindex="0" role="button" data-service="prometheus">
+                        <div class="service-icon">P</div>
+                        <div class="service-info"><strong>Prometheus</strong><small>Metrics & alert evaluation</small></div>
+                        <span id="prom-badge" class="badge pending">Checking</span>
+                    </div>
+                    <div class="service-row service-clickable" tabindex="0" role="button" data-service="alertmanager">
+                        <div class="service-icon">A</div>
+                        <div class="service-info"><strong>Alertmanager</strong><small>Alert routing</small></div>
+                        <span id="am-badge" class="badge pending">Checking</span>
+                    </div>
+                    <div class="service-row service-clickable" tabindex="0" role="button" data-service="recovery">
+                        <div class="service-icon">R</div>
+                        <div class="service-info"><strong>Recovery controller</strong><small>Ansible automation</small></div>
+                        <span id="recovery-badge" class="badge pending">Checking</span>
+                    </div>
+                </article>
+
+                <article class="panel" id="alerts">
+                    <div class="panel-heading">
+                        <div><h2>Active alerts</h2><p class="muted">Prometheus → Alertmanager</p></div>
+                        <span id="alert-state" class="tag">SYNCING</span>
+                    </div>
+                    <div id="alerts-list" class="empty-state">Loading alert information…</div>
+                </article>
+            </section>
+
+            <section class="panel recovery-panel" id="recovery">
+                <div class="panel-heading">
+                    <div><h2>Recovery activity</h2><p class="muted">Actions executed by the Ansible recovery controller</p></div>
+                    <span class="tag">AUDIT TRAIL</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>INCIDENT</th><th>SERVICE</th><th>ACTION</th><th>TIME (UTC)</th></tr></thead>
+                        <tbody id="recovery-table">
+                            <tr><td colspan="4" class="empty-state">Loading recovery events…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer>
+                <span>SentinelOps <span class="muted">· Self-Healing Infrastructure Platform</span></span>
+                <span id="connection-state">Connecting to monitoring APIs…</span>
+            </footer>
+            <div id="service-details" class="panel" hidden>
+    <div class="panel-heading">
+        <div>
+            <h2 id="service-detail-title">Service details</h2>
+            <p id="service-detail-description" class="muted"></p>
+        </div>
+        <button id="close-service-details" class="refresh-btn" type="button">
+            Close ×
+        </button>
+    </div>
+    <p id="service-detail-endpoint" class="muted"></p>
+    <p id="service-detail-role"></p>
+</div>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
